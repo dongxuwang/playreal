@@ -1,24 +1,55 @@
 package controllers
 
-import javax.inject._
-import play.api._
-import play.api.mvc._
+import actions.CarActions
+import play.api.mvc.{BaseController, ControllerComponents, PlayBodyParsers}
+import managers.CarManager
+import persistence.entities.CarDTO
+import play.api.libs.json.Json
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
-@Singleton
-class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
+import scala.concurrent.ExecutionContext
 
-  /**
-   * Create an Action to render an HTML page.
-   *
-   * The configuration in the `routes` file means that this method
-   * will be called when the application receives a `GET` request with
-   * a path of `/`.
-   */
-  def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
+class HomeController(val carManager: CarManager, val controllerComponents: ControllerComponents)(implicit val ec: ExecutionContext)
+  extends BaseController {
+
+  def get(id: Long) = Action {
+    carManager
+      .get(id)
+      .fold(
+        error => BadRequest(error.message),
+        result => result.map(car => Ok(Json.toJson(car))).getOrElse(NoContent)
+      )
   }
+
+  def getAll() = Action {
+    carManager
+      .getAll()
+      .fold(
+        error => BadRequest(error.message),
+        result => Ok(Json.toJson(result))
+      )
+  }
+
+  def update() = Action(parse.json[CarDTO]) { implicit request =>
+    carManager
+      .update(request.body)
+      .fold(
+        error => BadRequest(error.message),
+        _ => NoContent
+      )
+  }
+
+  def save() = Action(parse.json[CarDTO]) { implicit request =>
+    carManager
+      .save(request.body)
+      .fold(
+        error => BadRequest(error.message),
+        car => Ok(Json.toJson(car))
+      )
+  }
+
+  def index() = Action {
+    Ok("This is a test")
+  }
+
+  def playBodyParsers: PlayBodyParsers = controllerComponents.parsers
 }
