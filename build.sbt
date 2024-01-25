@@ -12,7 +12,10 @@ lazy val root = (project in file("."))
     scalaVersion := scala213,
     crossScalaVersions := Seq(scala213, scala3),
     libraryDependencies ++= Seq(
-      guice,
+      jdbc,
+      evolutions,
+      "com.h2database" % "h2" % "2.2.224",
+      "org.playframework.anorm" %% "anorm" % "2.7.0",
       "com.softwaremill.macwire" %% "macros" % macWireVersion % "provided",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
     )

@@ -1,32 +1,33 @@
+import com.softwaremill.macwire.wire
 import components.{ManagerComponents, RepositoryComponents}
 import controllers.HomeController
-import managers.{CarManager, CarManagerLive}
-import persistence.InMemoryPersistence
+import org.apache.pekko.actor.ActorSystem
 import play.api.mvc.EssentialFilter
-import play.filters.HttpFiltersComponents
 import play.api.routing.Router
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
-import play.filters.csrf.CSRF
-import repositories.CarRepository
+import play.filters.HttpFiltersComponents
+import repositories.DatabaseExecutionContext
 import router.Routes
 
 
 class AppApplicationLoader extends ApplicationLoader {
   def load(context: ApplicationLoader.Context): Application = {
-    val components = new RestApiComponents(context)
-
-    components.application
+    new RestApiComponents(context).application
   }
 }
 
 class RestApiComponents(context: ApplicationLoader.Context)
   extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
-    with ManagerComponents
-    with RepositoryComponents {
+    with RepositoryComponents
+    with ManagerComponents  {
 
-  lazy val homeController: HomeController = new HomeController(carManager, controllerComponents)
+  implicit lazy val as: ActorSystem = actorSystem
+  implicit val ec: DatabaseExecutionContext = new DatabaseExecutionContext(as)
+
+  lazy val homeController: HomeController = new HomeController(carManager, controllerComponents, computerManager)
   lazy val router: Router = new Routes(httpErrorHandler, homeController, "/")
 
   override def httpFilters: Seq[EssentialFilter] = super.httpFilters
 }
+

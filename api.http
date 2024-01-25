@@ -1,0 +1,16 @@
+POST localhost:9000/car/save
+Content-Type: application/json
+
+{
+  "brand": "BMW",
+  "model": "i3",
+  "cc": 1
+}
+
+###
+POST localhost:9000/company
+Content-Type: application/json
+
+{
+  "name": "BMW"
+}

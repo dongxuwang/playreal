@@ -2,13 +2,15 @@ package controllers
 
 import actions.CarActions
 import play.api.mvc.{BaseController, ControllerComponents, PlayBodyParsers}
-import managers.CarManager
-import persistence.entities.CarDTO
+import managers.{CarManager, ComputerManager}
+import persistence.entities.{CarDTO, CompanyDTO, ComputerDTO}
 import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext
 
-class HomeController(val carManager: CarManager, val controllerComponents: ControllerComponents)(implicit val ec: ExecutionContext)
+class HomeController(val carManager: CarManager,
+                     val controllerComponents: ControllerComponents,
+                     val computerManager: ComputerManager)(implicit val ec: ExecutionContext)
   extends BaseController {
 
   def get(id: Long) = Action {
@@ -45,6 +47,12 @@ class HomeController(val carManager: CarManager, val controllerComponents: Contr
         error => BadRequest(error.message),
         car => Ok(Json.toJson(car))
       )
+  }
+
+  def company() = Action(parse.json[ComputerDTO]) { implicit request =>
+    computerManager
+      .save(request.body)
+    Ok(Json.toJson(request.body))
   }
 
   def index() = Action {

@@ -6,3 +6,6 @@ GET     /cars             controllers.HomeController.getAll()
 PUT     /car/update        controllers.HomeController.update()
 +nocsrf
 POST    /car/save          controllers.HomeController.save()
+
++nocsrf
+POST    /company            controllers.HomeController.company()
