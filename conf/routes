@@ -1,11 +1,6 @@
-GET     /                 controllers.HomeController.index()
-GET     /car/:id          controllers.HomeController.get(id: Long)
-GET     /cars             controllers.HomeController.getAll()
-
-+nocsrf
-PUT     /car/update        controllers.HomeController.update()
-+nocsrf
-POST    /car/save          controllers.HomeController.save()
-
-+nocsrf
-POST    /company            controllers.HomeController.company()
+GET           /todo                     controllers.TodoListController.getAll
+GET           /todo/:itemId             controllers.TodoListController.getById(itemId: Long)
+PUT           /todo/done/:itemId        controllers.TodoListController.markAsDone(itemId: Long)
+DELETE        /todo/done                controllers.TodoListController.deleteAllDone()
+POST          /todo                     controllers.TodoListController.addNewItem()
+GET           /computers                controllers.TodoListController.list(p:Int ?= 0, s:Int ?= 2, f ?= "")

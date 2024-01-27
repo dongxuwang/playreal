@@ -1,14 +1,25 @@
-package repositories
+package models
+
+import anorm.SqlParser.{get, scalar}
+import anorm._
+import play.api.db.DBApi
+import play.api.libs.json.{Json, Writes}
 
 import java.util.Date
 import javax.inject.Inject
-import anorm.SqlParser.{get, scalar}
-import anorm._
-import persistence.entities.{Company, Computer}
-import play.api.db.{DBApi, Database}
-
 import scala.concurrent.Future
 
+case class Computer(id: Option[Long] = None,
+                    name: String,
+                    introduced: Option[Date],
+                    discontinued: Option[Date],
+                    companyId: Option[Long])
+
+object Computer {
+  implicit def toParameters: ToParameterList[Computer] =
+    Macro.toParameters[Computer]
+  def unapply(c: Computer): Option[(Option[Long], String, Option[Date], Option[Date], Option[Long])] = Some((c.id, c.name, c.introduced, c.discontinued, c.companyId))
+}
 
 /**
  * Helper for pagination.
@@ -18,9 +29,10 @@ case class Page[A](items: Seq[A], page: Int, offset: Long, total: Long) {
   lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
 }
 
-class ComputerRepository(db: Database, companyRepository: CompanyRepository)(implicit ec: DatabaseExecutionContext) {
+@javax.inject.Singleton
+class ComputerRepository @Inject()(dbapi: DBApi, companyRepository: CompanyRepository)(implicit ec: DatabaseExecutionContext) {
 
-//  private val db = dbapi.database("default")
+  private val db = dbapi.database("default")
 
   // -- Parsers
 

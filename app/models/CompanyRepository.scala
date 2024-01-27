@@ -1,21 +1,24 @@
-package repositories
+package models
 
 import anorm.SqlParser.{get, str}
 import anorm._
-import persistence.entities.Company
-import play.api.db.{DBApi, Database}
+import play.api.db.DBApi
 
+import javax.inject.Inject
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class CompanyRepository(db: Database)(implicit ec: DatabaseExecutionContext) {
+case class Company(id: Option[Long] = None, name: String)
 
-//  private val db = dbapi.database("default")
+@javax.inject.Singleton
+class CompanyRepository @Inject()(dbapi: DBApi)(implicit ec: DatabaseExecutionContext) {
+
+  private val db = dbapi.database("default")
 
   /**
    * Parse a Company from a ResultSet
    */
-  private[repositories] val simple = {
+  private[models] val simple = {
     get[Option[Long]]("company.id") ~ str("company.name") map {
       case id ~ name => Company(id, name)
     }
